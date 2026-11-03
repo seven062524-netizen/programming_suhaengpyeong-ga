@@ -1,0 +1,1142 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Doctor | AI 프롬프트 진단</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary: #635bdb;
+    --primary-light: #eeedff;
+    --background: #f6f7fb;
+    --surface: #ffffff;
+    --text: #202238;
+    --muted: #85889b;
+    --border: #e9eaf1;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Pretendard', sans-serif;
+    background: var(--background);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+button, textarea {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+}
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* 사이드바 */
+
+.sidebar {
+    width: 250px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 30px 20px;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 10;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 45px;
+    padding-left: 8px;
+}
+
+.logo-icon {
+    width: 39px;
+    height: 39px;
+    border-radius: 12px;
+    background: var(--primary);
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.logo h2 {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.logo span {
+    color: var(--primary);
+}
+
+.menu-title {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 25px 10px 12px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 14px 13px;
+    border-radius: 11px;
+    color: #707387;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    transition: 0.2s;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+}
+
+.menu-item:hover {
+    background: #f6f5ff;
+    color: var(--primary);
+}
+
+.menu-item.active {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.menu-icon {
+    font-size: 18px;
+    width: 22px;
+    text-align: center;
+}
+
+.sidebar-bottom {
+    position: absolute;
+    bottom: 25px;
+    left: 20px;
+    right: 20px;
+    background: #f7f7fc;
+    padding: 17px;
+    border-radius: 13px;
+}
+
+.sidebar-bottom p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.sidebar-bottom strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+/* 메인 화면 */
+
+.main {
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    padding: 35px 45px;
+    max-width: 1600px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+}
+
+.topbar small {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.profile-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #e8e6ff;
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+}
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+.page-header h1 {
+    font-size: 29px;
+    font-weight: 800;
+    margin-bottom: 10px;
+    letter-spacing: -1px;
+}
+
+.page-header p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* 통계 카드 */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-bottom: 27px;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 21px;
+}
+
+.stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 17px;
+}
+
+.stat-icon {
+    width: 37px;
+    height: 37px;
+    border-radius: 11px;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+}
+
+.stat-card h3 {
+    font-size: 26px;
+    font-weight: 800;
+}
+
+.stat-card p {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* 입력 및 결과 영역 */
+
+.workspace {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 25px;
+    min-width: 0;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.panel-header h2 {
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.panel-header span {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.input-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+textarea {
+    width: 100%;
+    resize: vertical;
+    border: 1px solid var(--border);
+    border-radius: 11px;
+    padding: 15px;
+    font-size: 13px;
+    line-height: 1.7;
+    outline: none;
+    color: var(--text);
+    background: #fcfcfe;
+    transition: 0.2s;
+}
+
+textarea:focus {
+    border-color: var(--primary);
+    background: white;
+}
+
+textarea::placeholder {
+    color: #b4b6c5;
+}
+
+#userInput {
+    min-height: 180px;
+}
+
+#contextInput {
+    min-height: 110px;
+    margin-top: 10px;
+}
+
+.char-count {
+    text-align: right;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 7px;
+}
+
+.primary-btn {
+    width: 100%;
+    background: var(--primary);
+    color: white;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 19px;
+    transition: 0.2s;
+}
+
+.primary-btn:hover {
+    background: #5149c4;
+    transform: translateY(-1px);
+}
+
+.primary-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+}
+
+/* 분석 결과 */
+
+.result-placeholder {
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--muted);
+}
+
+.placeholder-icon {
+    width: 70px;
+    height: 70px;
+    background: #f0efff;
+    border-radius: 22px;
+    display: grid;
+    place-items: center;
+    font-size: 30px;
+    margin-bottom: 18px;
+}
+
+.result-placeholder h3 {
+    color: var(--text);
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.result-placeholder p {
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.result-content {
+    display: none;
+}
+
+.result-status {
+    padding: 14px;
+    border-radius: 11px;
+    background: #f1f0ff;
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.result-section {
+    margin-bottom: 22px;
+}
+
+.result-section h3 {
+    font-size: 13px;
+    margin-bottom: 11px;
+}
+
+.result-section p {
+    font-size: 13px;
+    color: #626579;
+    line-height: 1.8;
+}
+
+.result-list {
+    list-style: none;
+}
+
+.result-list li {
+    font-size: 13px;
+    color: #626579;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f5;
+    line-height: 1.6;
+}
+
+.result-list li::before {
+    content: "•";
+    color: var(--primary);
+    font-weight: 800;
+    margin-right: 9px;
+}
+
+.improved-box {
+    background: #f6f5ff;
+    border: 1px solid #e6e4ff;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.copy-btn {
+    background: white;
+    border: 1px solid #dedcfb;
+    color: var(--primary);
+    padding: 9px 13px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 12px;
+}
+
+.copy-btn:hover {
+    background: #eeedff;
+}
+
+/* 안내 */
+
+.notice {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 17px 20px;
+    margin-top: 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notice-icon {
+    font-size: 21px;
+}
+
+.notice p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.notice strong {
+    color: var(--text);
+}
+
+/* 반응형 */
+
+@media(max-width: 1050px) {
+    .main {
+        padding: 30px 25px;
+    }
+
+    .workspace {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media(max-width: 700px) {
+    .sidebar {
+        width: 65px;
+        padding: 20px 9px;
+    }
+
+    .logo {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .logo h2,
+    .menu-title,
+    .menu-text,
+    .sidebar-bottom {
+        display: none;
+    }
+
+    .menu-item {
+        justify-content: center;
+        padding: 13px 5px;
+    }
+
+    .main {
+        margin-left: 65px;
+        width: calc(100% - 65px);
+        padding: 23px 14px;
+    }
+
+    .stats {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .page-header h1 {
+        font-size: 23px;
+    }
+
+    .panel {
+        padding: 18px;
+    }
+
+    .topbar {
+        margin-bottom: 25px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- 사이드바 -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">P</div>
+            <h2>Prompt<span>Doctor</span></h2>
+        </div>
+
+        <div class="menu-title">WORKSPACE</div>
+
+        <button class="menu-item active" data-mode="diagnosis">
+            <span class="menu-icon">⌕</span>
+            <span class="menu-text">프롬프트 진단</span>
+        </button>
+
+        <button class="menu-item" data-mode="error">
+            <span class="menu-icon">⚙</span>
+            <span class="menu-text">오류 원인 분석</span>
+        </button>
+
+        <button class="menu-item" data-mode="improve">
+            <span class="menu-icon">✦</span>
+            <span class="menu-text">프롬프트 개선</span>
+        </button>
+
+        <div class="menu-title">PRACTICE</div>
+
+        <button class="menu-item" data-mode="practice">
+            <span class="menu-icon">▤</span>
+            <span class="menu-text">작성 연습</span>
+        </button>
+
+        <div class="sidebar-bottom">
+            <strong>Prompt Doctor</strong>
+            <p>더 나은 질문이 더 나은 AI 결과를 만듭니다.</p>
+        </div>
+
+    </aside>
+
+    <!-- 메인 화면 -->
+
+    <main class="main">
+
+        <header class="topbar">
+            <small>Dashboard / <span id="breadcrumb">프롬프트 진단</span></small>
+
+            <div class="profile">
+                <div class="profile-icon">P</div>
+                <span>Prompt Doctor</span>
+            </div>
+        </header>
+
+        <section class="page-header">
+            <h1 id="pageTitle">프롬프트 진단</h1>
+            <p id="pageDescription">
+                작성한 프롬프트의 문제점을 분석하고 더 나은 질문으로 개선해 보세요.
+            </p>
+        </section>
+
+        <!-- 통계 -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span style="font-size:13px;color:#85889b;">분석 도구</span>
+                    <div class="stat-icon" style="background:#eeedff;color:#635bdb;">⌕</div>
+                </div>
+                <h3>04</h3>
+                <p>사용 가능한 분석 기능</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span style="font-size:13px;color:#85889b;">분석 항목</span>
+                    <div class="stat-icon" style="background:#e7f8f1;color:#16a477;">✓</div>
+                </div>
+                <h3>06</h3>
+                <p>프롬프트 주요 평가 기준</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span style="font-size:13px;color:#85889b;">AI 엔진</span>
+                    <div class="stat-icon" style="background:#fff1e8;color:#e58a46;">✦</div>
+                </div>
+                <h3>Gemini</h3>
+                <p>Gemini API 연결</p>
+            </div>
+
+        </section>
+
+        <!-- 작업 영역 -->
+
+        <section class="workspace">
+
+            <!-- 입력 패널 -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <h2 id="inputTitle">프롬프트 입력</h2>
+                    <span>INPUT</span>
+                </div>
+
+                <label class="input-label" for="userInput" id="mainLabel">
+                    분석할 프롬프트
+                </label>
+
+                <textarea
+                    id="userInput"
+                    placeholder="예: 인공지능에 대해 설명해 줘."
+                    maxlength="5000"
+                ></textarea>
+
+                <div class="char-count">
+                    <span id="charCount">0</span> / 5000
+                </div>
+
+                <div id="contextArea" style="display:none;margin-top:22px;">
+
+                    <label class="input-label" for="contextInput">
+                        추가 정보 (선택)
+                    </label>
+
+                    <textarea
+                        id="contextInput"
+                        placeholder="관련 코드, 오류가 발생한 상황, AI의 응답 등을 입력하세요."
+                    ></textarea>
+
+                </div>
+
+                <button class="primary-btn" id="analyzeBtn">
+                    ✦ 분석 시작하기
+                </button>
+
+            </div>
+
+            <!-- 결과 패널 -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <h2>분석 결과</h2>
+                    <span>RESULT</span>
+                </div>
+
+                <div class="result-placeholder" id="placeholder">
+
+                    <div class="placeholder-icon">✦</div>
+
+                    <h3>분석 결과가 여기에 표시됩니다.</h3>
+
+                    <p>
+                        왼쪽 입력창에 내용을 작성하고<br>
+                        분석 시작 버튼을 눌러주세요.
+                    </p>
+
+                </div>
+
+                <div class="result-content" id="resultContent">
+
+                    <div class="result-status" id="resultStatus">
+                        분석 완료
+                    </div>
+
+                    <div class="result-section">
+                        <h3>① 전체 분석</h3>
+                        <p id="summary"></p>
+                    </div>
+
+                    <!-- 수정: problemsSection ID 추가 -->
+
+                    <div class="result-section" id="problemsSection">
+                        <h3>② 발견된 문제점</h3>
+                        <ul class="result-list" id="problems"></ul>
+                    </div>
+
+                    <!-- 수정: solutionSection ID 추가 -->
+
+                    <div class="result-section" id="solutionSection">
+                        <h3>③ 개선 방향</h3>
+                        <p id="solution"></p>
+                    </div>
+
+                    <div class="result-section" id="improvedSection">
+                        <h3>④ 개선된 프롬프트</h3>
+
+                        <div class="improved-box" id="improvedText"></div>
+
+                        <button class="copy-btn" id="copyBtn">
+                            내용 복사하기
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <div class="notice">
+            <div class="notice-icon">ⓘ</div>
+            <p>
+                <strong>안내 사항</strong><br>
+                입력한 내용은 로컬 서버를 통해 Gemini API로 전송되어 분석됩니다.
+                API 키는 서버의 .env 파일에서 관리됩니다.
+            </p>
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+
+let currentMode = "diagnosis";
+
+const userInput = document.getElementById("userInput");
+const contextInput = document.getElementById("contextInput");
+const analyzeBtn = document.getElementById("analyzeBtn");
+
+const modes = {
+    diagnosis: {
+        title: "프롬프트 진단",
+        description: "작성한 프롬프트의 문제점을 분석하고 더 나은 질문으로 개선해 보세요.",
+        inputTitle: "프롬프트 입력",
+        label: "분석할 프롬프트",
+        placeholder: "예: 인공지능에 대해 설명해 줘.",
+        button: "✦ 진단 시작하기",
+        needsContext: false
+    },
+
+    error: {
+        title: "오류 원인 분석",
+        description: "AI 사용 중 발생한 오류의 원인과 해결 방법을 확인해 보세요.",
+        inputTitle: "오류 정보 입력",
+        label: "오류 메시지",
+        placeholder: "예: TypeError: Cannot read properties of undefined",
+        button: "⚙ 오류 분석하기",
+        needsContext: true
+    },
+
+    improve: {
+        title: "프롬프트 개선",
+        description: "간단하게 작성한 질문을 더 구체적이고 효과적인 프롬프트로 바꿔보세요.",
+        inputTitle: "개선할 프롬프트",
+        label: "기존 프롬프트",
+        placeholder: "예: 환경오염에 대해 알려줘.",
+        button: "✦ 프롬프트 개선하기",
+        needsContext: false
+    },
+
+    practice: {
+        title: "프롬프트 작성 연습",
+        description: "직접 작성한 질문을 분석하고 프롬프트 작성 방법을 연습해 보세요.",
+        inputTitle: "연습용 프롬프트",
+        label: "작성한 프롬프트",
+        placeholder: "연습한 프롬프트를 입력하세요.",
+        button: "▤ 연습 결과 확인하기",
+        needsContext: false
+    }
+};
+
+/* 메뉴 변경 */
+
+document.querySelectorAll(".menu-item").forEach(button => {
+
+    button.addEventListener("click", () => {
+
+        document.querySelectorAll(".menu-item").forEach(item => {
+            item.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        currentMode = button.dataset.mode;
+
+        const setting = modes[currentMode];
+
+        document.getElementById("pageTitle").textContent = setting.title;
+        document.getElementById("pageDescription").textContent = setting.description;
+        document.getElementById("breadcrumb").textContent = setting.title;
+        document.getElementById("inputTitle").textContent = setting.inputTitle;
+        document.getElementById("mainLabel").textContent = setting.label;
+
+        userInput.placeholder = setting.placeholder;
+        analyzeBtn.textContent = setting.button;
+
+        const contextArea = document.getElementById("contextArea");
+
+        if (contextArea) {
+            contextArea.style.display =
+                setting.needsContext ? "block" : "none";
+        }
+
+        contextInput.value = "";
+
+        resetResult();
+    });
+
+});
+
+/* 글자 수 표시 */
+
+userInput.addEventListener("input", () => {
+
+    const charCount = document.getElementById("charCount");
+
+    if (charCount) {
+        charCount.textContent = userInput.value.length;
+    }
+
+});
+
+/* 결과 초기화 */
+
+function resetResult() {
+
+    const placeholder = document.getElementById("placeholder");
+    const resultContent = document.getElementById("resultContent");
+
+    if (placeholder) {
+        placeholder.style.display = "flex";
+
+        const title = placeholder.querySelector("h3");
+        const description = placeholder.querySelector("p");
+
+        if (title) {
+            title.textContent = "분석 결과가 여기에 표시됩니다.";
+        }
+
+        if (description) {
+            description.innerHTML =
+                "왼쪽 입력창에 내용을 작성하고<br>분석 시작 버튼을 눌러주세요.";
+        }
+    }
+
+    if (resultContent) {
+        resultContent.style.display = "none";
+    }
+
+}
+
+/* 결과 표시 */
+
+function showResult(data) {
+
+    const placeholder = document.getElementById("placeholder");
+    const resultContent = document.getElementById("resultContent");
+
+    if (placeholder) {
+        placeholder.style.display = "none";
+    }
+
+    if (resultContent) {
+        resultContent.style.display = "block";
+    }
+
+    const resultStatus = document.getElementById("resultStatus");
+
+    if (resultStatus) {
+        resultStatus.textContent = data.status || "AI 분석 완료";
+    }
+
+    const summary = document.getElementById("summary");
+
+    if (summary) {
+        summary.textContent = data.summary || "";
+        summary.style.whiteSpace = "pre-wrap";
+        summary.style.wordBreak = "break-word";
+    }
+
+    const problemsSection = document.getElementById("problemsSection");
+    const solutionSection = document.getElementById("solutionSection");
+    const improvedSection = document.getElementById("improvedSection");
+
+    const problems = document.getElementById("problems");
+
+    if (problems) {
+
+        problems.innerHTML = "";
+
+        (data.problems || []).forEach(problem => {
+
+            const li = document.createElement("li");
+            li.textContent = problem;
+
+            problems.appendChild(li);
+
+        });
+
+    }
+
+    /* 수정: 요소가 존재하는지 확인한 후 style 변경 */
+
+    if (problemsSection) {
+        problemsSection.style.display =
+            data.problems && data.problems.length ? "block" : "none";
+    }
+
+    const solution = document.getElementById("solution");
+
+    if (solution) {
+        solution.textContent = data.solution || "";
+    }
+
+    if (solutionSection) {
+        solutionSection.style.display =
+            data.solution ? "block" : "none";
+    }
+
+    if (improvedSection) {
+
+        if (data.improved) {
+
+            improvedSection.style.display = "block";
+
+            const improvedText = document.getElementById("improvedText");
+
+            if (improvedText) {
+                improvedText.textContent = data.improved;
+            }
+
+        } else {
+
+            improvedSection.style.display = "none";
+
+        }
+
+    }
+
+}
+
+/* Gemini API 연결 */
+
+async function analyzeWithGemini() {
+
+    const content = userInput.value.trim();
+
+    if (!content) {
+        alert("분석할 내용을 먼저 입력해 주세요.");
+        userInput.focus();
+        return;
+    }
+
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = "Gemini가 분석 중...";
+
+    const placeholder = document.getElementById("placeholder");
+    const resultContent = document.getElementById("resultContent");
+
+    if (placeholder) {
+
+        placeholder.style.display = "flex";
+
+        const title = placeholder.querySelector("h3");
+        const description = placeholder.querySelector("p");
+
+        if (title) {
+            title.textContent = "Gemini가 내용을 분석하고 있습니다.";
+        }
+
+        if (description) {
+            description.textContent = "잠시만 기다려 주세요.";
+        }
+
+    }
+
+    if (resultContent) {
+        resultContent.style.display = "none";
+    }
+
+    try {
+
+        const response = await fetch("/api/analyze", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                mode: currentMode,
+
+                content: content,
+
+                code: contextInput.value.trim()
+
+            })
+
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || "AI 분석 요청에 실패했습니다.");
+        }
+
+        showResult({
+
+            status: "Gemini AI 분석 완료",
+
+            summary: data.result,
+
+            problems: [],
+
+            solution: "",
+
+            improved: ""
+
+        });
+
+    } catch (error) {
+
+        showResult({
+
+            status: "분석 중 오류 발생",
+
+            summary:
+                error.message +
+                "\n\n서버가 실행 중인지, .env 파일의 API 키가 정확한지 확인해 주세요.",
+
+            problems: [],
+
+            solution: "",
+
+            improved: ""
+
+        });
+
+    } finally {
+
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = modes[currentMode].button;
+
+    }
+
+}
+
+/* 분석 버튼 */
+
+analyzeBtn.addEventListener("click", analyzeWithGemini);
+
+/* 개선된 프롬프트 복사 */
+
+const copyBtn = document.getElementById("copyBtn");
+
+if (copyBtn) {
+
+    copyBtn.addEventListener("click", async () => {
+
+        const improvedText = document.getElementById("improvedText");
+
+        if (!improvedText) {
+            return;
+        }
+
+        const text = improvedText.textContent;
+
+        try {
+
+            await navigator.clipboard.writeText(text);
+
+            alert("개선된 프롬프트를 복사했습니다.");
+
+        } catch (error) {
+
+            alert("복사할 수 없습니다. 내용을 직접 선택해 주세요.");
+
+        }
+
+    });
+
+}
+
+/* 최초 실행 */
+
+resetResult();
+
+</script>
+
+</body>
+</html>
